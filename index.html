@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Pet Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .pet {
+            transition: transform 0.3s ease;
+        }
+
+        .pet-hungry {
+            transform: scale(0.9);
+            filter: grayscale(50%);
+        }
+
+        .pet-happy {
+            transform: scale(1.1);
+        }
+
+        .pet-sleeping {
+            transform: translateY(10px);
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center max-w-md w-full">
+        <h1 class="text-2xl font-bold mb-4">Virtual Pet Simulator</h1>
+        <div id="petDisplay" class="text-6xl mb-4 pet">🐶</div>
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <div>
+                <p>Hunger</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="hungerBar" class="bg-red-500 h-2.5 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+            <div>
+                <p>Happiness</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="happinessBar" class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+            <div>
+                <p>Energy</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="energyBar" class="bg-blue-500 h-2.5 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-center gap-4">
+            <button id="feedBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Feed</button>
+            <button id="playBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Play</button>
+            <button id="sleepBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sleep</button>
+        </div>
+        <p id="status" class="mt-4 text-gray-600">Your pet is happy!</p>
+    </div>
+
+    <script>
+        const pet = {
+            hunger: 50,
+            happiness: 50,
+            energy: 50,
+            isSleeping: false
+        };
+
+        const petDisplay = document.getElementById('petDisplay');
+        const hungerBar = document.getElementById('hungerBar');
+        const happinessBar = document.getElementById('happinessBar');
+        const energyBar = document.getElementById('energyBar');
+        const statusText = document.getElementById('status');
+        const feedBtn = document.getElementById('feedBtn');
+        const playBtn = document.getElementById('playBtn');
+        const sleepBtn = document.getElementById('sleepBtn');
+
+        function updateDisplay() {
+            hungerBar.style.width = `${pet.hunger}%`;
+            happinessBar.style.width = `${pet.happiness}%`;
+            energyBar.style.width = `${pet.energy}%`;
+
+            petDisplay.classList.remove('pet-hungry', 'pet-happy', 'pet-sleeping');
+            if (pet.isSleeping) {
+                petDisplay.classList.add('pet-sleeping');
+                statusText.textContent = 'Your pet is sleeping...';
+            } else if (pet.hunger < 30) {
+                petDisplay.classList.add('pet-hungry');
+                statusText.textContent = 'Your pet is hungry!';
+            } else if (pet.happiness > 70) {
+                petDisplay.classList.add('pet-happy');
+                statusText.textContent = 'Your pet is very happy!';
+            } else {
+                statusText.textContent = 'Your pet is happy!';
+            }
+        }
+
+        function feedPet() {
+            if (!pet.isSleeping) {
+                pet.hunger = Math.min(100, pet.hunger + 20);
+                pet.happiness = Math.min(100, pet.happiness + 5);
+                pet.energy = Math.max(0, pet.energy - 10);
+                updateDisplay();
+            }
+        }
+
+        function playWithPet() {
+            if (!pet.isSleeping) {
+                pet.happiness = Math.min(100, pet.happiness + 20);
+                pet.hunger = Math.max(0, pet.hunger - 10);
+                pet.energy = Math.max(0, pet.energy - 15);
+                updateDisplay();
+            }
+        }
+
+        function putPetToSleep() {
+            pet.isSleeping = !pet.isSleeping;
+            if (pet.isSleeping) {
+                sleepBtn.textContent = 'Wake Up';
+            } else {
+                sleepBtn.textContent = 'Sleep';
+            }
+            updateDisplay();
+        }
+
+        function updateAttributes() {
+            if (!pet.isSleeping) {
+                pet.hunger = Math.max(0, pet.hunger - 2);
+                pet.happiness = Math.max(0, pet.happiness - 1);
+                pet.energy = Math.max(0, pet.energy - 1);
+            } else {
+                pet.energy = Math.min(100, pet.energy + 5);
+                pet.hunger = Math.max(0, pet.hunger - 1);
+            }
+            updateDisplay();
+        }
+
+        feedBtn.addEventListener('click', feedPet);
+        playBtn.addEventListener('click', playWithPet);
+        sleepBtn.addEventListener('click', putPetToSleep);
+
+        setInterval(updateAttributes, 5000);
+        updateDisplay();
+    </script>
+</body>
+
+</html>
